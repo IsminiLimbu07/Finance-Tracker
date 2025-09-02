@@ -1,5 +1,9 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
+import mongoose from 'mongoose';
 
 const app = express(); //Creates an express application think of it as a resturant.
 
@@ -15,8 +19,12 @@ app.get('/', (req, res) => {
     res.send('Hello World!'); //sends a response to the client think of it as the chef sending the food to the customer.
 });
 
-app.listen(3000, () => {
-    console.log('Server is running on port 3000'); //starts the server think of it as opening the resturant for business.
+mongoose.connect(process.env.MONGO_URL)
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch(err => console.log('❌ MongoDB connection error:', err));
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📍 Visit: http://localhost:${PORT}`);
 });
-
-
