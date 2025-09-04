@@ -1,6 +1,6 @@
-const express = require('express');
-const Expense = require('../models/Expense');
-const auth = require('../middleware/auth');
+import express from 'express';
+import Expense from '../models/Expense.js';
+import auth from '../middleware/auth.js';
 const router = express.Router();
 
 // Get all expenses for logged-in user
@@ -226,4 +226,4 @@ router.get('/stats', auth, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

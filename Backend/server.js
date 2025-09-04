@@ -3,6 +3,9 @@ dotenv.config();
 
 import express from 'express';
 import cors from 'cors';
+import authRouter from './routes/auth.js';
+import expensesRouter from './routes/expenses.js';
+
 import mongoose from 'mongoose';
 
 const app = express(); //Creates an express application think of it as a resturant.
@@ -12,6 +15,11 @@ const app = express(); //Creates an express application think of it as a restura
 app.use(cors()); //allows cross origin resource sharing think of it as allowing people from another city to place an order at your resturant
 
 app.use(express.json()); //allows express to parse json data think of it as a waiter that takes orders and gives to chef in his native language.
+
+
+
+app.use('/api/auth', authRouter);
+app.use('/api/expenses', expensesRouter);
 
 
 // Routes
