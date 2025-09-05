@@ -14,47 +14,42 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(() => localStorage.getItem('token'));
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
-    // Always sync token from localStorage on mount
-    const storedToken = localStorage.getItem('token');
-    if (storedToken && storedToken !== token) {
-      setToken(storedToken);
-      return;
-    }
-    if (token) {
-      loadUser();
-    } else {
-      setLoading(false);
-    }
-  }, [token]);
-
-  const loadUser = async () => {
-    try {
-      const response = await authAPI.getProfile();
-      setUser(response.data.user);
-    } catch (error) {
-      console.error('Error loading user:', error);
-      // Only logout if unauthorized
-      if (error.response?.status === 401) {
-        logout();
-      } else {
-        setUser(null);
+    const initializeAuth = async () => {
+      const storedToken = localStorage.getItem('token');
+      
+      if (storedToken) {
+        setToken(storedToken);
+        try {
+          const response = await authAPI.getProfile();
+          setUser(response.data.user);
+        } catch (error) {
+          console.error('Error loading user:', error);
+          // If token is invalid, clear everything
+          if (error.response?.status === 401) {
+            localStorage.removeItem('token');
+            setToken(null);
+            setUser(null);
+          }
+        }
       }
-    } finally {
+      
       setLoading(false);
-    }
-  };
+    };
+
+    initializeAuth();
+  }, []);
 
   const login = async (credentials) => {
     try {
       const response = await authAPI.login(credentials);
-      const { token, user } = response.data;
+      const { token: newToken, user: newUser } = response.data;
       
-      localStorage.setItem('token', token);
-      setToken(token);
-      setUser(user);
+      localStorage.setItem('token', newToken);
+      setToken(newToken);
+      setUser(newUser);
       
       return { success: true };
     } catch (error) {
@@ -68,11 +63,11 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await authAPI.register(userData);
-      const { token, user } = response.data;
+      const { token: newToken, user: newUser } = response.data;
       
-      localStorage.setItem('token', token);
-      setToken(token);
-      setUser(user);
+      localStorage.setItem('token', newToken);
+      setToken(newToken);
+      setUser(newUser);
       
       return { success: true };
     } catch (error) {

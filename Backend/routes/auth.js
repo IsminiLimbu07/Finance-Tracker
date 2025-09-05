@@ -65,7 +65,6 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// ...existing login, me, and budget routes...
 // Login user
 router.post('/login', async (req, res) => {
   try {
@@ -122,6 +121,36 @@ router.get('/me', auth, async (req, res) => {
   } catch (error) {
     console.error('Profile error:', error);
     res.status(500).json({ message: 'Server error loading profile', error: error.message });
+  }
+});
+
+// Update user budget
+router.put('/budget', auth, async (req, res) => {
+  try {
+    const { monthlyBudget } = req.body;
+
+    if (monthlyBudget < 0) {
+      return res.status(400).json({ message: 'Budget cannot be negative' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { monthlyBudget: monthlyBudget || 0 },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const { password, ...userData } = user.toObject();
+    res.json({ 
+      message: 'Budget updated successfully',
+      user: userData 
+    });
+  } catch (error) {
+    console.error('Budget update error:', error);
+    res.status(500).json({ message: 'Server error updating budget', error: error.message });
   }
 });
 

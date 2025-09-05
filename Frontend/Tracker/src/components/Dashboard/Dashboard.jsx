@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { expensesAPI } from '../../services/api';
 import ExpenseCharts from '../Charts/ExpenseCharts';
 import StatsCards from './StatsCards';
+import ExpenseList from './ExpenseList';
 import { Plus, Filter, Download, Calendar } from 'lucide-react';
 
 const Dashboard = () => {

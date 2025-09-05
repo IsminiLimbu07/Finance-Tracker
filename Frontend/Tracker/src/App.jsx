@@ -10,7 +10,7 @@ import './App.css';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
-  const { token, loading } = useAuth();
+  const { token, loading, user } = useAuth();
 
   if (loading) {
     return (
@@ -20,7 +20,24 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  return token ? children : <Navigate to="/login" />;
+  // Check if user is authenticated (has both token and user data)
+  return token && user ? children : <Navigate to="/login" replace />;
+};
+
+// Public Route Component (prevents logged-in users from seeing login/register)
+const PublicRoute = ({ children }) => {
+  const { token, loading, user } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  // If user is authenticated, redirect to dashboard
+  return token && user ? <Navigate to="/dashboard" replace /> : children;
 };
 
 // Layout Component
@@ -39,11 +56,25 @@ function App() {
       <Router>
         <div className="min-h-screen bg-gray-50">
           <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route
+              path="/login"
+              element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <PublicRoute>
+                  <Register />
+                </PublicRoute>
+              }
+            />
             <Route
               path="/"
-              element={<Navigate to="/dashboard" replace />} // Always redirect root to dashboard
+              element={<Navigate to="/dashboard" replace />}
             />
             <Route
               path="/dashboard"
